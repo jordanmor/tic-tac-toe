@@ -43,6 +43,8 @@ class GameUI {
     this.$start = $('#start');
     this.$finish = $('#finish');
     this.$modal = $('#modal');
+    this.$player1 = $('#player1');
+    this.$player2 = $('#player2');
 
     this.$buttons.on('click', e => this.handleBtnClick(e) );
     $('.close').on('click', () => this.closeModal() );
@@ -64,6 +66,8 @@ class GameUI {
     this.$modal.hide();
     this.$start.hide();
     this.$board.show();
+    // this.$player1.addClass('active');
+    this.$player2.addClass('active');
   }
 
   handleBtnClick(e) {
@@ -89,5 +93,35 @@ class GameUI {
   }
 }
 
+  // -- BOARD COMPONENT -- //
+
+  class GameBoard {
+    constructor() {
+      this.boxes = $('.box');
+      this.bgImages = { player1: 'url(../img/o.svg)', player2: 'url(../img/x.svg)' };
+
+      this.boxes.on('mouseover', e => this.handleMouseOver(e) );
+      this.boxes.on('mouseleave', e => this.handleMouseLeave(e) );
+    }
+
+    handleMouseOver(e) {
+      const currentBox = e.target;
+      const boxIsEmpty = this.isBoxEmpty(currentBox);
+      const activePlayer = $('.active').attr('id');
+
+      if (boxIsEmpty) currentBox.style.backgroundImage = this.bgImages[activePlayer];
+    }
+
+    handleMouseLeave(e) {
+      const currentBox = e.target;
+      $(currentBox).css('background-image', '');
+    }
+
+    isBoxEmpty(currentBox) {
+      return !$(currentBox).is('.box-filled-1, .box-filled-2');
+    }
+  }
+
 const game = new GameUI();
+const gameBoard = new GameBoard();
 game.init();
