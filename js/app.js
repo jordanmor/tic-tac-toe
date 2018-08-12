@@ -93,6 +93,35 @@ class GameUI {
   }
 }
 
+  // -- PLAYER COMPONENT -- //
+
+  class Player {
+    constructor(playerNum) {
+      this.playerNum = playerNum;
+      this.domElement = $(`#player${playerNum}`);
+      this.input = $(`#player${playerNum}Input`);
+      this.name = `Player ${playerNum}`;
+      this.boxClass = `box-filled-${playerNum}`;
+      this.computer = false;
+    }
+
+    get isActive() {
+      return this.domElement.hasClass('active');
+    }
+
+    get winMessage() {
+      return `${this.name} Wins!`;
+    }
+
+    get screenWinClass() {
+      return this.playerNum === 1 ? 'screen-win-one' : 'screen-win-two';
+    }
+
+    get bgImage() {
+      return this.playerNum === 1 ? 'url(../img/o.svg)' : 'url(../img/x.svg)';
+    }
+  }
+
   // -- BOARD COMPONENT -- //
 
   class GameBoard {
@@ -124,4 +153,6 @@ class GameUI {
 
 const game = new GameUI();
 const gameBoard = new GameBoard();
+const player1 = new Player(1);
+const player2 = new Player(2);
 game.init();
