@@ -102,7 +102,7 @@ class GameUI {
       this.input = $(`#player${playerNum}Input`);
       this.name = `Player ${playerNum}`;
       this.boxClass = `box-filled-${playerNum}`;
-      this.computer = false;
+      this.isComputer = false;
     }
 
     get isActive() {
