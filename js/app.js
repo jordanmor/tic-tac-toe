@@ -17,6 +17,9 @@ $('body').prepend(`<div class="screen screen-start" id="start">
                   </div>`
 );
 
+$('#player1').prepend('<h2>Player 1</h2>');
+$('#player2').prepend('<h2>Player 2</h2>');
+
 $('#board').after(`<div id="modal" class="modal">
                     <div class="modal-content">
                       <span class="close">&times;</span>
@@ -69,9 +72,26 @@ class GameUI {
 
   startGame(player) {
     player.domElement.addClass('active');
+    this.displayNames();
     this.$modal.hide();
     this.$start.hide();
     this.$board.show();
+  }
+
+  displayNames() {
+    const { player1, player2 } = this.gamePlay;
+    const player1Name = player1.input.val();
+    const player2Name = player2.input.val();
+    if(player1Name) {
+      player1.domElement.children('h2').text(player1Name);
+      player1.name = player1Name;
+    }
+    if(player2Name) {
+      player2.domElement.children('h2').text(player2Name);
+      player2.name = player2Name;
+    }
+    player1.input.val('');
+    player2.input.val('');
   }
 
   handleBtnClick(e) {
