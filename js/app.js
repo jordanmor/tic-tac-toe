@@ -99,7 +99,7 @@ class GamePlay {
   constructor() {
     this.player1 = new Player(1);
     this.player2 = new Player(2);
-    this.gameBoard = new GameBoard();
+    this.gameBoard = new GameBoard(this.player1, this.player2);
     this.$boxes = this.gameBoard.boxes;
 
     this.$boxes.on('click', e => this.selectSquare(e));
@@ -158,9 +158,9 @@ class Player {
 // -- BOARD COMPONENT -- //
 
 class GameBoard {
-  constructor() {
+  constructor(player1, player2) {
     this.boxes = $('.box');
-    this.bgImages = { player1: 'url(../img/o.svg)', player2: 'url(../img/x.svg)' };
+    this.bgImages = { player1: player1.bgImage, player2: player2.bgImage };
 
     this.boxes.on('mouseover', e => this.handleMouseOver(e) );
     this.boxes.on('mouseleave', e => this.handleMouseLeave(e) );
@@ -169,9 +169,9 @@ class GameBoard {
   handleMouseOver(e) {
     const currentBox = e.target;
     const boxIsEmpty = this.isBoxEmpty(currentBox);
-    const activePlayer = $('.active').attr('id');
+    const currentPlayer = $('.active').attr('id');
 
-    if (boxIsEmpty) currentBox.style.backgroundImage = this.bgImages[activePlayer];
+    if (boxIsEmpty) currentBox.style.backgroundImage = this.bgImages[currentPlayer];
   }
 
   handleMouseLeave(e) {
