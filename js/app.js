@@ -55,19 +55,23 @@ class GameUI {
     this.$modal.hide();
   }
 
+  getRandomPlayer() {
+    const randomNum = Math.floor(Math.random() * 2) + 1;
+    const { player1, player2 } = this.gamePlay;
+    return randomNum === 1 ? player1 : player2;
+  }
+
   newGame() {
     this.resetGame();
     this.$finish.hide();
     this.$start.show();
   }
 
-  startGame() {
-    const { player2 } = this.gamePlay;
+  startGame(player) {
+    player.domElement.addClass('active');
     this.$modal.hide();
     this.$start.hide();
     this.$board.show();
-    // this.$player1.addClass('active');
-    player2.domElement.addClass('active');
   }
 
   handleBtnClick(e) {
@@ -81,7 +85,8 @@ class GameUI {
         this.$modal.show();
         break;
       case 'Start Game':
-        this.startGame();  
+        const randomPlayer = this.getRandomPlayer();
+        this.startGame(randomPlayer);
         break;
       case 'New Game':
         this.newGame();
