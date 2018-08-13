@@ -106,7 +106,23 @@ class GamePlay {
   }
 
   selectSquare(e) {
-    console.log(e.target);
+    const selectedBox = e.target;
+    const currentPlayer = this.findCurrentPlayer();
+    const boxIsEmpty = this.gameBoard.isBoxEmpty(selectedBox);
+
+    if(boxIsEmpty) {
+      $(selectedBox).addClass(currentPlayer.boxClass);
+      this.nextPlayersTurn(currentPlayer);
+    }
+  }
+
+  findCurrentPlayer() {
+    return this.player1.isActive ? this.player1 : this.player2;
+  }
+
+  nextPlayersTurn(currentPlayer) {
+    currentPlayer.domElement.removeClass('active');
+    currentPlayer.domElement.siblings().addClass('active');
   }
 }
 
