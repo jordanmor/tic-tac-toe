@@ -1,5 +1,6 @@
 "use strict"
 
+// Start and Finish screens
 $('body').prepend(`<div class="screen screen-start" id="start">
                     <header>
                       <h1>Tic Tac Toe</h1>
@@ -17,9 +18,11 @@ $('body').prepend(`<div class="screen screen-start" id="start">
                   </div>`
 );
 
+// Displays player's name above player symbol during gameplay
 $('#player1').prepend('<h2>Player 1</h2>');
 $('#player2').prepend('<h2>Player 2</h2>');
 
+// Modal
 $('#board').after(`<div id="modal" class="modal">
                     <div class="modal-content">
                       <span class="close">&times;</span>
@@ -46,21 +49,21 @@ class GameUI {
     this.$start = $('#start');
     this.$finish = $('#finish');
     this.$modal = $('#modal');
-    this.gamePlay = new GamePlay();
+    this.gamePlay = new GamePlay(); // creates an instance of the Gameplay component
 
-    this.$buttons.on('click', e => this.handleBtnClick(e) );
-    $('.close').on('click', () => this.closeModal() );
+    this.$buttons.on('click', e => this.handleBtnClick(e) ); // event listener handles all btn clicks
+    $('.close').on('click', () => this.closeModal() ); // close modal
   }
-
+  // Initializes game when first accessed or on browser reload/refresh
   init() {
     this.$board.hide();
     this.$finish.hide();
     this.$modal.hide();
   }
-
+  // This method chooses a random player to start each game
   getRandomPlayer() {
     const randomNum = Math.floor(Math.random() * 2) + 1;
-    const { player1, player2 } = this.gamePlay;
+    const { player1, player2 } = this.gamePlay; // use destructuring to access player variables
     return randomNum === 1 ? player1 : player2;
   }
 
@@ -77,7 +80,7 @@ class GameUI {
     this.$finish.hide();
     this.$start.show();
   }
-
+  // each game starts with values set back to default values
   resetGame() {
     const { player1, player2 } = this.gamePlay;
     this.$boxes.removeClass('box-filled-1 box-filled-2');
@@ -88,7 +91,7 @@ class GameUI {
     player1.name = 'Player 1';
     player2.name = 'Player 2';
   }
-
+  // Collect and display players names (or default names) above players' symbols during gameplay
   displayNames() {
     const { player1, player2 } = this.gamePlay;
     const player1Name = player1.input.val();
@@ -107,7 +110,7 @@ class GameUI {
 
   handleBtnClick(e) {
     const buttonText = e.target.textContent;
-    
+    // Switch handles all game buttons according to each button's text value 
     switch(buttonText) {
       case '1 player':
         this.$modal.show();
@@ -135,21 +138,23 @@ class GamePlay {
   constructor() {
     this.player1 = new Player(1);
     this.player2 = new Player(2);
-    this.gameBoard = new GameBoard(this.player1, this.player2);
+    this.gameBoard = new GameBoard(this.player1, this.player2); // new instance of GameBoard component
     this.$boxes = this.gameBoard.boxes;
     this.$board = $('#board');
     this.$finish = $('#finish');
 
-    this.$boxes.on('click', e => this.selectSquare(e));
+    this.$boxes.on('click', e => this.selectSquare(e)); // event listener handles all gameboard box selections
   }
-
+  
   selectSquare(e) {
     const selectedBox = e.target;
     const currentPlayer = this.findCurrentPlayer();
     const boxIsEmpty = this.gameBoard.isBoxEmpty(selectedBox);
 
     if(boxIsEmpty) {
+      // If box is empty, current player adds symbol to box
       $(selectedBox).addClass(currentPlayer.boxClass);
+      // Function checkForWinner then determines if that move results in a win, draw, or the next player's turn
       const result = checkForWinner(currentPlayer);
         if (result === 'win') {
           this.handleWin(currentPlayer);
@@ -164,12 +169,12 @@ class GamePlay {
   findCurrentPlayer() {
     return this.player1.isActive ? this.player1 : this.player2;
   }
-
+  // Handles players turns by switching the active class to the next player
   nextPlayersTurn(currentPlayer) {
     currentPlayer.domElement.removeClass('active');
     currentPlayer.domElement.siblings().addClass('active');
   }
-
+  // Displays the winning players win message on the finish screen
   handleWin(currentPlayer) {
     const { screenWinClass, winMessage } = currentPlayer;
     this.$board.hide();
@@ -193,7 +198,7 @@ class Player {
     this.boxClass = `box-filled-${playerNum}`;
     this.isComputer = false;
   }
-
+  // use getter to dynamically retrieve the values below 
   get isActive() {
     return this.domElement.hasClass('active');
   }
@@ -214,7 +219,7 @@ class Player {
 // -- BOARD COMPONENT -- //
 
 class GameBoard {
-  constructor(player1, player2) {
+  constructor(player1, player2) { // player variables passed down from GamePlay component
     this.boxes = $('.box');
     this.bgImages = { player1: player1.bgImage, player2: player2.bgImage };
 
@@ -234,7 +239,7 @@ class GameBoard {
     const currentBox = e.target;
     $(currentBox).css('background-image', '');
   }
-
+  // checks if the current box does not have either of the box-filled classes
   isBoxEmpty(currentBox) {
     return !$(currentBox).is('.box-filled-1, .box-filled-2');
   }
@@ -245,26 +250,31 @@ class GameBoard {
 ===============-=============-=============-===========*/
 
 function checkForWinner(player) {
-
+  // array holds all possible combinations of box spaces that result in a game win
   const winningCombos = [[1,2,3], [4,5,6], [7,8,9], [1,4,7], [2,5,8], [3,6,9], [1,5,9], [3,5,7]];
   const { boxClass } = player;
   const $boxes = $('.box');
-
+  /* createPlayerCombo function looks at all gameboard boxes and returns 
+     all the indexes of the boxes with the current players boxClass name */
   const createPlayerCombo = (boxClass) => {
     return $.makeArray($boxes.map( (index, box) =>  {
-      if ($(box).hasClass(boxClass)) return index + 1;
+      if ($(box).hasClass(boxClass)) return index + 1; // add one so the box index numbers count from 1 - 9
     }));
   }
-
+  /* compareCombos compares each array of winning combos to the combination of box numbers the current player 
+     has selected so far. If three of the current player's selected boxes match one of the winning combos, 
+     this function will return a length value of 1 (the winning combo array) and therefore, a truthy value. 
+     If there is no match, the length value of the array will equal 0, and therefore will return falsy. */
   const compareCombos = (playerCombo, winningCombos) => {
     return winningCombos.filter(combo => playerCombo.filter(number => combo.includes(number)).length === 3).length;
   }
-
+  /* if the compareCombos function return falsy, the checkForDraw function will check if
+     all 9 boxes have been selected with a boxClass, which means the game has ended in a draw */
   const checkForDraw = () => {
     return $boxes.filter( (index, box) => $(box).hasClass('box-filled-1') || $(box).hasClass('box-filled-2')).length === 9;
   }
 
-  const playerCombo = createPlayerCombo(boxClass);
+  const playerCombo = createPlayerCombo(boxClass); // player combo created
 
   if( compareCombos(playerCombo, winningCombos) ) {
     return 'win';
