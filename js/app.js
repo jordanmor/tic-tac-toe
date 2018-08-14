@@ -64,18 +64,29 @@ class GameUI {
     return randomNum === 1 ? player1 : player2;
   }
 
-  newGame() {
-    this.resetGame();
-    this.$finish.hide();
-    this.$start.show();
-  }
-
   startGame(player) {
     player.domElement.addClass('active');
     this.displayNames();
     this.$modal.hide();
     this.$start.hide();
     this.$board.show();
+  }
+
+  newGame() {
+    this.resetGame();
+    this.$finish.hide();
+    this.$start.show();
+  }
+
+  resetGame() {
+    const { player1, player2 } = this.gamePlay;
+    this.$boxes.removeClass('box-filled-1 box-filled-2');
+    this.$finish.removeClass('screen-win-one screen-win-two screen-win-draw');
+    player2.input.show();
+    player1.domElement.removeClass('active').children('h2').text('Player 1');
+    player2.domElement.removeClass('active').children('h2').text('Player 2'); 
+    player1.name = 'Player 1';
+    player2.name = 'Player 2';
   }
 
   displayNames() {
@@ -126,6 +137,8 @@ class GamePlay {
     this.player2 = new Player(2);
     this.gameBoard = new GameBoard(this.player1, this.player2);
     this.$boxes = this.gameBoard.boxes;
+    this.$board = $('#board');
+    this.$finish = $('#finish');
 
     this.$boxes.on('click', e => this.selectSquare(e));
   }
@@ -137,7 +150,14 @@ class GamePlay {
 
     if(boxIsEmpty) {
       $(selectedBox).addClass(currentPlayer.boxClass);
-      this.nextPlayersTurn(currentPlayer);
+      const result = checkForWinner(currentPlayer);
+        if (result === 'win') {
+          this.handleWin(currentPlayer);
+        } else if(result === 'draw') {
+          this.handleDraw();
+        } else {
+          this.nextPlayersTurn(currentPlayer);
+        }
     }
   }
 
@@ -148,6 +168,17 @@ class GamePlay {
   nextPlayersTurn(currentPlayer) {
     currentPlayer.domElement.removeClass('active');
     currentPlayer.domElement.siblings().addClass('active');
+  }
+
+  handleWin(currentPlayer) {
+    const { screenWinClass, winMessage } = currentPlayer;
+    this.$board.hide();
+    this.$finish.addClass(screenWinClass).show().find('.message').text(winMessage);
+  }
+
+  handleDraw() {
+    this.$board.hide();
+    this.$finish.addClass('screen-win-tie').show().find('.message').text('Draw');
   }
 }
 
@@ -206,6 +237,39 @@ class GameBoard {
 
   isBoxEmpty(currentBox) {
     return !$(currentBox).is('.box-filled-1, .box-filled-2');
+  }
+}
+
+/*=============-=============-=============-=============
+                        FUNCTIONS
+===============-=============-=============-===========*/
+
+function checkForWinner(player) {
+
+  const winningCombos = [[1,2,3], [4,5,6], [7,8,9], [1,4,7], [2,5,8], [3,6,9], [1,5,9], [3,5,7]];
+  const { boxClass } = player;
+  const $boxes = $('.box');
+
+  const createPlayerCombo = (boxClass) => {
+    return $.makeArray($boxes.map( (index, box) =>  {
+      if ($(box).hasClass(boxClass)) return index + 1;
+    }));
+  }
+
+  const compareCombos = (playerCombo, winningCombos) => {
+    return winningCombos.filter(combo => playerCombo.filter(number => combo.includes(number)).length === 3).length;
+  }
+
+  const checkForDraw = () => {
+    return $boxes.filter( (index, box) => $(box).hasClass('box-filled-1') || $(box).hasClass('box-filled-2')).length === 9;
+  }
+
+  const playerCombo = createPlayerCombo(boxClass);
+
+  if( compareCombos(playerCombo, winningCombos) ) {
+    return 'win';
+  } else {
+    return checkForDraw() ? 'draw' : false;
   }
 }
 
