@@ -63,16 +63,21 @@ class GameUI {
   // This method chooses a random player to start each game
   getRandomPlayer() {
     const randomNum = Math.floor(Math.random() * 2) + 1;
-    const { player1, player2 } = this.gamePlay; // use destructuring to access player variables
+    const { player1, player2 } = this.gamePlay; // use destructuring to access player objects
     return randomNum === 1 ? player1 : player2;
   }
 
   startGame(player) {
+    const { player2 } = this.gamePlay;
     player.domElement.addClass('active');
     this.displayNames();
     this.$modal.hide();
     this.$start.hide();
     this.$board.show();
+    // if the player chosen randomly to start the game is the computer, computer moves first
+    if(player === player2 && player.isComputer){
+      this.gamePlay.computerMove();
+    }
   }
 
   newGame() {
@@ -90,6 +95,7 @@ class GameUI {
     player2.domElement.removeClass('active').children('h2').text('Player 2'); 
     player1.name = 'Player 1';
     player2.name = 'Player 2';
+    player2.isComputer = false;
   }
   // Collect and display players names (or default names) above players' symbols during gameplay
   displayNames() {
@@ -113,7 +119,13 @@ class GameUI {
     // Switch handles all game buttons according to each button's text value 
     switch(buttonText) {
       case '1 player':
+        const { player2 } = this.gamePlay;
+        player2.input.hide();
         this.$modal.show();
+        // choosing the 1 player game makes the 2nd player the computer opponent
+        player2.isComputer = true;
+        player2.name = 'Computer'; // Player 2 renamed "Computer"
+        player2.domElement.children('h2').text('Computer');
         break;
       case '2 players':
         this.$modal.show();
@@ -129,6 +141,7 @@ class GameUI {
 
   closeModal() {
     this.$modal.hide();
+    this.$player2Input.show();
   }
 }
 
@@ -143,15 +156,15 @@ class GamePlay {
     this.$board = $('#board');
     this.$finish = $('#finish');
 
-    this.$boxes.on('click', e => this.selectSquare(e)); // event listener handles all gameboard box selections
+    this.$boxes.on('click', e => this.selectBox(e)); // event listener handles all gameboard box selections
   }
   
-  selectSquare(e) {
+  selectBox(e) {
     const selectedBox = e.target;
     const currentPlayer = this.findCurrentPlayer();
     const boxIsEmpty = this.gameBoard.isBoxEmpty(selectedBox);
-
-    if(boxIsEmpty) {
+    // Player can select a box only if it is empty and current player is not computer
+    if(boxIsEmpty && !currentPlayer.isComputer) {
       // If box is empty, current player adds symbol to box
       $(selectedBox).addClass(currentPlayer.boxClass);
       // Function checkForWinner then determines if that move results in a win, draw, or the next player's turn
@@ -162,6 +175,11 @@ class GamePlay {
           this.handleDraw();
         } else {
           this.nextPlayersTurn(currentPlayer);
+          // If player 2 is the computer, the computer takes it's turn
+          if(this.player2.isComputer) {
+            // SetTimeout used to give the appearance that the computer is thinking about the next move
+            window.setTimeout(this.computerMove.bind(this), 3000);
+          }
         }
     }
   }
@@ -185,6 +203,19 @@ class GamePlay {
     this.$board.hide();
     this.$finish.addClass('screen-win-tie').show().find('.message').text('Draw');
   }
+
+  computerMove() {
+    const selectedBox = computerSelectsBox();
+    $(selectedBox).addClass(this.player2.boxClass);
+    const result = checkForWinner(this.player2);
+    if (result === 'win') {
+      this.handleWin(this.player2);
+    } else if(result === 'draw') {
+      this.handleDraw();
+    } else {
+      this.nextPlayersTurn(this.player2);
+    }
+  }
 }
 
 // -- PLAYER COMPONENT -- //
@@ -202,7 +233,7 @@ class Player {
   get isActive() {
     return this.domElement.hasClass('active');
   }
-
+  // Finish screen will display the winning player's stored name
   get winMessage() {
     return `${this.name} Wins!`;
   }
@@ -231,7 +262,7 @@ class GameBoard {
     const currentBox = e.target;
     const boxIsEmpty = this.isBoxEmpty(currentBox);
     const currentPlayer = $('.active').attr('id');
-
+    // current player's background image displays when user mouses over an empty box
     if (boxIsEmpty) currentBox.style.backgroundImage = this.bgImages[currentPlayer];
   }
 
@@ -281,6 +312,28 @@ function checkForWinner(player) {
   } else {
     return checkForDraw() ? 'draw' : false;
   }
+}
+
+function computerSelectsBox() {
+  const $boxes = $('.box');
+  
+  // create an array of the indices of all unselected boxes
+  function findUnselectedBoxes() {
+      return $.makeArray($boxes.map( (index, box) =>  {
+          if (!$(box).hasClass('box-filled-1') && !$(box).hasClass('box-filled-2')) return index;
+      }));
+  }
+  
+  // computer makes a choice from an array of the remaining unselected boxes using a generated random index
+  function pickRandomIndex() {
+      const unselectedBoxesArray = findUnselectedBoxes();
+      const randomIndex = Math.floor(Math.random() * unselectedBoxesArray.length);
+      return unselectedBoxesArray[randomIndex];
+  }
+
+  const randomUnselectedBoxIndex = pickRandomIndex();
+  const $chosenBox = $boxes.eq(randomUnselectedBoxIndex);
+  return $chosenBox; // function returns the box element the computer has randomly chosen
 }
 
 /*=============-=============-=============-=============
