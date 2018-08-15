@@ -49,10 +49,10 @@
       this.$start = $('#start');
       this.$finish = $('#finish');
       this.$modal = $('#modal');
-      this.gamePlay = new GamePlay(); // creates an instance of the Gameplay component
+      this.gamePlay = new GamePlay(); // Creates an instance of the Gameplay component
 
-      this.$buttons.on('click', e => this.handleBtnClick(e) ); // event listener handles all btn clicks
-      $('.close').on('click', () => this.closeModal() ); // close modal
+      this.$buttons.on('click', e => this.handleBtnClick(e) ); // Event listener handles all btn clicks
+      $('.close').on('click', () => this.closeModal() ); // Close modal
     }
     // Initializes game when first accessed or on browser reload/refresh
     init() {
@@ -63,7 +63,7 @@
     // This method chooses a random player to start each game
     getRandomPlayer() {
       const randomNum = Math.floor(Math.random() * 2) + 1;
-      const { player1, player2 } = this.gamePlay; // use destructuring to access player objects
+      const { player1, player2 } = this.gamePlay; // Use destructuring to access player objects
       return randomNum === 1 ? player1 : player2;
     }
 
@@ -74,7 +74,7 @@
       this.$modal.hide();
       this.$start.hide();
       this.$board.show();
-      // if the player chosen randomly to start the game is the computer, computer moves first
+      // If the player chosen randomly to start the game is the computer, computer moves first
       if(player === player2 && player.isComputer){
         this.gamePlay.computerMove();
       }
@@ -85,7 +85,7 @@
       this.$finish.hide();
       this.$start.show();
     }
-    // each game starts with values set back to default values
+    // Sets values back to the default values
     resetGame() {
       const { player1, player2 } = this.gamePlay;
       this.$boxes.removeClass('box-filled-1 box-filled-2');
@@ -122,7 +122,7 @@
           const { player2 } = this.gamePlay;
           player2.input.hide();
           this.$modal.show();
-          // choosing the 1 player game makes the 2nd player the computer opponent
+          // Choosing the 1 player game makes the 2nd player the computer opponent
           player2.isComputer = true;
           player2.name = 'Computer'; // Player 2 renamed "Computer"
           player2.domElement.children('h2').text('Computer');
@@ -155,12 +155,12 @@
     constructor() {
       this.player1 = new Player(1);
       this.player2 = new Player(2);
-      this.gameBoard = new GameBoard(this.player1, this.player2); // new instance of GameBoard component
+      this.gameBoard = new GameBoard(this.player1, this.player2); // New instance of GameBoard component
       this.$boxes = this.gameBoard.boxes;
       this.$board = $('#board');
       this.$finish = $('#finish');
 
-      this.$boxes.on('click', e => this.selectBox(e)); // event listener handles all gameboard box selections
+      this.$boxes.on('click', e => this.selectBox(e)); // Event listener handles all gameboard box selections
     }
     
     selectBox(e) {
@@ -169,7 +169,7 @@
       const boxIsEmpty = this.gameBoard.isBoxEmpty(selectedBox);
       // Player can select a box only if it is empty and current player is not computer
       if(boxIsEmpty && !currentPlayer.isComputer) {
-        // If box is empty, current player adds symbol to box
+        // If box is empty, current player adds symbol to box ...
         $(selectedBox).addClass(currentPlayer.boxClass);
         // Function checkForWinner then determines if that move results in a win, draw, or the next player's turn
         const result = checkForWinner(currentPlayer);
@@ -182,6 +182,7 @@
             // If player 2 is the computer, the computer takes it's turn
             if(this.player2.isComputer) {
               // SetTimeout used to give the appearance that the computer is thinking about the next move
+              // Binding this to it's intended method is necessary when that method is used as a callback
               window.setTimeout(this.computerMove.bind(this), 3000);
             }
           }
@@ -233,7 +234,7 @@
       this.boxClass = `box-filled-${playerNum}`;
       this.isComputer = false;
     }
-    // use getter to dynamically retrieve the values below 
+    // Use getter to dynamically retrieve the values below 
     get isActive() {
       return this.domElement.hasClass('active');
     }
@@ -254,7 +255,7 @@
   // -- BOARD COMPONENT -- //
 
   class GameBoard {
-    constructor(player1, player2) { // player variables passed down from GamePlay component
+    constructor(player1, player2) { // Player variables passed down from GamePlay component
       this.boxes = $('.box');
       this.bgImages = { player1: player1.bgImage, player2: player2.bgImage };
 
@@ -266,7 +267,7 @@
       const currentBox = e.target;
       const boxIsEmpty = this.isBoxEmpty(currentBox);
       const currentPlayer = $('.active').attr('id');
-      // current player's background image displays when user mouses over an empty box
+      // Current player's background image displays when user mouses over an empty box
       if (boxIsEmpty) currentBox.style.backgroundImage = this.bgImages[currentPlayer];
     }
 
@@ -274,7 +275,7 @@
       const currentBox = e.target;
       $(currentBox).css('background-image', '');
     }
-    // checks if the current box does not have either of the box-filled classes
+    // Checks that the current box does not have either of the box-filled classes
     isBoxEmpty(currentBox) {
       return !$(currentBox).is('.box-filled-1, .box-filled-2');
     }
@@ -285,12 +286,12 @@
   ===============-=============-=============-===========*/
 
   function checkForWinner(player) {
-    // array holds all possible combinations of box spaces that result in a game win
+    // Array holds all possible combinations of box spaces that result in a game win
     const winningCombos = [[1,2,3], [4,5,6], [7,8,9], [1,4,7], [2,5,8], [3,6,9], [1,5,9], [3,5,7]];
     const { boxClass } = player;
     const $boxes = $('.box');
-    /* createPlayerCombo function looks at all gameboard boxes and returns 
-      all the indexes of the boxes with the current players boxClass name */
+    /* Function createPlayerCombo looks at all gameboard boxes and returns 
+      all the indexes of the boxes with the current player's boxClass name */
     const createPlayerCombo = (boxClass) => {
       return $.makeArray($boxes.map( (index, box) =>  {
         if ($(box).hasClass(boxClass)) return index + 1; // add one so the box index numbers count from 1 - 9
@@ -303,13 +304,13 @@
     const compareCombos = (playerCombo, winningCombos) => {
       return winningCombos.filter(combo => playerCombo.filter(number => combo.includes(number)).length === 3).length;
     }
-    /* if the compareCombos function return falsy, the checkForDraw function will check if
+    /* If the compareCombos function return falsy, the checkForDraw function will check if
       all 9 boxes have been selected with a boxClass, which means the game has ended in a draw */
     const checkForDraw = () => {
       return $boxes.filter( (index, box) => $(box).hasClass('box-filled-1') || $(box).hasClass('box-filled-2')).length === 9;
     }
 
-    const playerCombo = createPlayerCombo(boxClass); // player combo created
+    const playerCombo = createPlayerCombo(boxClass); // Player combo created
 
     if( compareCombos(playerCombo, winningCombos) ) {
       return 'win';
@@ -321,14 +322,14 @@
   function computerSelectsBox() {
     const $boxes = $('.box');
     
-    // create an array of the indices of all unselected boxes
+    // Create an array of the indices of all unselected boxes
     function findUnselectedBoxes() {
         return $.makeArray($boxes.map( (index, box) =>  {
             if (!$(box).hasClass('box-filled-1') && !$(box).hasClass('box-filled-2')) return index;
         }));
     }
     
-    // computer makes a choice from an array of the remaining unselected boxes using a generated random index
+    // Computer makes a choice from an array of the remaining unselected boxes using a generated random index
     function pickRandomIndex() {
         const unselectedBoxesArray = findUnselectedBoxes();
         const randomIndex = Math.floor(Math.random() * unselectedBoxesArray.length);
@@ -337,7 +338,7 @@
 
     const randomUnselectedBoxIndex = pickRandomIndex();
     const $chosenBox = $boxes.eq(randomUnselectedBoxIndex);
-    return $chosenBox; // function returns the box element the computer has randomly chosen
+    return $chosenBox; // Function returns the box element the computer has randomly chosen
   }
 
   /*=============-=============-=============-=============
