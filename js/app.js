@@ -143,6 +143,9 @@
       const { player2 } = this.gamePlay;
       this.$modal.hide();
       player2.input.show();
+      player2.isComputer = false;
+      player2.name = 'Player 2';
+      player2.domElement.children('h2').text('Player 2');
     }
   }
 
