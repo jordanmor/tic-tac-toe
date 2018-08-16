@@ -169,7 +169,7 @@ h1 {
   margin: 30% auto;
   padding: 50px;
   border: 1px solid #888;
-  width: 28%;
+  width: 450px;
   border-radius: 4px;
   display: flex;
   flex-direction: column;
@@ -177,15 +177,15 @@ h1 {
 }
 
 .modal-content-inner {
-display: flex;
-justify-content: center;
-margin-bottom: 2.5rem;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2.5rem;
 }
 
 .modal-content-inner input {
-border-radius: 4px;
-font-size: 1.2rem;
-padding: 15px 8px;
+  border-radius: 4px;
+  font-size: 1.2rem;
+  padding: 15px 0;
 }
 
 .modal-content-inner input + input {
@@ -193,11 +193,11 @@ padding: 15px 8px;
 }
 
 .modal-content .button {
-width: 200px;
-margin: 0 auto;
-background-color: #54D17A;
-color: #fff;
-outline: none;
+  width: 200px;
+  margin: 0 auto;
+  background-color: #54D17A;
+  color: #fff;
+  outline: none;
 }
 
 .close {
