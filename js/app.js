@@ -248,7 +248,7 @@
     }
 
     get bgImage() {
-      return this.playerNum === 1 ? 'url(../img/o.svg)' : 'url(../img/x.svg)';
+      return this.playerNum === 1 ? 'url(img/o.svg)' : 'url(img/x.svg)';
     }
   }
 
