@@ -6,7 +6,7 @@
                         <h1>Tic Tac Toe</h1>
                         <h2 class="start">Start Game</h2>
                         <a href="#" class="button">1 player</a>
-                        <a href="#" class="button">2 players</a>
+                        <a href="#" class="button ml">2 players</a>
                       </header>
                     </div>
                     <div class="screen screen-win" id="finish">
@@ -14,6 +14,7 @@
                           <h1>Tic Tac Toe</h1>
                           <p class="message"></p>
                           <a href="#" class="button">New Game</a>
+                          <a href="#" class="button reset">Choose New Players</a>
                       </header>
                     </div>`
   );
@@ -67,37 +68,55 @@
       return randomNum === 1 ? player1 : player2;
     }
 
-    startGame(player) {
+    startGame(randomlyChosenPlayer) {
       const { player2 } = this.gamePlay;
-      player.domElement.addClass('active');
+      randomlyChosenPlayer.domElement.addClass('active');
       this.displayNames();
       this.$modal.hide();
       this.$start.hide();
       this.$board.show();
       // If the player chosen randomly to start the game is the computer, computer moves first
-      if(player === player2 && player.isComputer){
+      if(randomlyChosenPlayer === player2 && randomlyChosenPlayer.isComputer){
         this.gamePlay.computerMove();
       }
     }
 
-    newGame() {
-      this.resetGame();
-      this.$finish.hide();
-      this.$start.show();
-    }
-    // Sets values back to the default values
-    resetGame() {
-      const { player1, player2 } = this.gamePlay;
-      this.$boxes.removeClass('box-filled-1 box-filled-2');
+    newGame(randomlyChosenPlayer) {
+      this.resetClasses();
+      const { player2 } = this.gamePlay;
+      randomlyChosenPlayer.domElement.addClass('active');
       this.$boxes.css('cursor', 'pointer');
-      this.$finish.removeClass('screen-win-one screen-win-two screen-win-draw');
+      this.$finish.hide();
+      this.$board.show();
+
+      if(randomlyChosenPlayer === player2 && randomlyChosenPlayer.isComputer){
+        this.gamePlay.computerMove();
+      }
+    }
+
+    restartGame() {
+      this.resetClasses();
+      const { player1, player2 } = this.gamePlay;
       player2.input.show();
-      player1.domElement.removeClass('active').children('h2').text('Player 1');
-      player2.domElement.removeClass('active').children('h2').text('Player 2'); 
+      player1.domElement.children('h2').text('Player 1');
+      player2.domElement.children('h2').text('Player 2'); 
       player1.name = 'Player 1';
       player2.name = 'Player 2';
       player2.isComputer = false;
+      this.$boxes.css('cursor', 'pointer');
+      this.$finish.hide();
+      this.$start.show();
     }
+    
+    // Sets some class values back to the default
+    resetClasses() {
+      const { player1, player2 } = this.gamePlay;
+      this.$boxes.removeClass('box-filled-1 box-filled-2');
+      this.$finish.removeClass('screen-win-one screen-win-two screen-win-draw');
+      player1.domElement.removeClass('active');
+      player2.domElement.removeClass('active');
+    }
+
     // Collect and display players names (or default names) above players' symbols during gameplay
     displayNames() {
       const { player1, player2 } = this.gamePlay;
@@ -118,6 +137,7 @@
     handleBtnClick(e) {
       const buttonText = e.target.textContent;
       // Switch handles all game buttons according to each button's text value 
+      const randomPlayer = this.getRandomPlayer();
       switch(buttonText) {
         case '1 player':
           const { player2 } = this.gamePlay;
@@ -132,11 +152,13 @@
           this.$modal.show();
           break;
         case 'Start Game':
-          const randomPlayer = this.getRandomPlayer();
           this.startGame(randomPlayer);
           break;
         case 'New Game':
-          this.newGame();
+          this.newGame(randomPlayer);
+          break;
+        case 'Choose New Players':
+          this.restartGame();
       }
     }
 
