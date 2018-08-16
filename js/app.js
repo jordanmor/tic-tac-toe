@@ -89,6 +89,7 @@
     resetGame() {
       const { player1, player2 } = this.gamePlay;
       this.$boxes.removeClass('box-filled-1 box-filled-2');
+      this.$boxes.css('cursor', 'pointer');
       this.$finish.removeClass('screen-win-one screen-win-two screen-win-draw');
       player2.input.show();
       player1.domElement.removeClass('active').children('h2').text('Player 1');
@@ -183,7 +184,7 @@
             if(this.player2.isComputer) {
               // SetTimeout used to give the appearance that the computer is thinking about the next move
               // Binding this to it's intended method is necessary when that method is used as a callback
-              window.setTimeout(this.computerMove.bind(this), 3000);
+              window.setTimeout(this.computerMove.bind(this), 2000);
             }
           }
       }
@@ -258,6 +259,7 @@
     constructor(player1, player2) { // Player variables passed down from GamePlay component
       this.boxes = $('.box');
       this.bgImages = { player1: player1.bgImage, player2: player2.bgImage };
+      this.player2 = player2;
 
       this.boxes.on('mouseover', e => this.handleMouseOver(e) );
       this.boxes.on('mouseleave', e => this.handleMouseLeave(e) );
@@ -267,13 +269,27 @@
       const currentBox = e.target;
       const boxIsEmpty = this.isBoxEmpty(currentBox);
       const currentPlayer = $('.active').attr('id');
-      // Current player's background image displays when user mouses over an empty box
-      if (boxIsEmpty) currentBox.style.backgroundImage = this.bgImages[currentPlayer];
+      /* When user mouses over a box, the current player's background image only displays
+         if the box is empty and ,if in single player mode, it is not the computer's turn*/
+      if (boxIsEmpty) {
+        if (this.player2.isComputer && this.player2.isActive) {
+          currentBox.style.cursor = 'default';
+        } else {
+          currentBox.style.cursor = 'pointer';
+          currentBox.style.backgroundImage = this.bgImages[currentPlayer];
+        }
+      } else {
+        currentBox.style.cursor = 'default';
+      }
     }
 
     handleMouseLeave(e) {
       const currentBox = e.target;
-      $(currentBox).css('background-image', '');
+      const boxIsEmpty = this.isBoxEmpty(currentBox);
+      currentBox.style.backgroundImage = "";
+      if(boxIsEmpty) {
+        currentBox.style.cursor = 'pointer';
+      }
     }
     // Checks that the current box does not have either of the box-filled classes
     isBoxEmpty(currentBox) {
