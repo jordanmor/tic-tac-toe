@@ -67,7 +67,7 @@
       const { player1, player2 } = this.gamePlay; // Use destructuring to access player objects
       return randomNum === 1 ? player1 : player2;
     }
-
+    // Starts a game with the user's chosen player options
     startGame(randomlyChosenPlayer) {
       const { player2 } = this.gamePlay;
       randomlyChosenPlayer.domElement.addClass('active');
@@ -80,7 +80,7 @@
         this.gamePlay.computerMove();
       }
     }
-
+    // Starts a new game with the previously chosen players
     newGame(randomlyChosenPlayer) {
       this.resetClasses();
       const { player2 } = this.gamePlay;
@@ -93,7 +93,7 @@
         this.gamePlay.computerMove();
       }
     }
-
+    // Resets the board and allows user to choose new players before starting the next game
     restartGame() {
       this.resetClasses();
       const { player1, player2 } = this.gamePlay;
@@ -108,7 +108,6 @@
       this.$start.show();
     }
     
-    // Sets some class values back to the default
     resetClasses() {
       const { player1, player2 } = this.gamePlay;
       this.$boxes.removeClass('box-filled-1 box-filled-2');
