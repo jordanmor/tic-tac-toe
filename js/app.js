@@ -198,7 +198,7 @@ class GamePlay {
       const selectedBoxIndex = $(selectedBox).index();
       this.boardSpaces[selectedBoxIndex] = currentPlayer.symbol;
       console.log(this.boardSpaces);
-      const result = checkForWinner(this.boardSpaces, currentPlayer);
+      const result = this.checkForWinner(this.boardSpaces, currentPlayer);
         if (result === 'win') {
           this.handleWin(currentPlayer);
         } else if(result === 'draw') {
@@ -223,6 +223,24 @@ class GamePlay {
     currentPlayer.domElement.removeClass('active');
     currentPlayer.domElement.siblings().addClass('active');
   }
+
+  checkForWinner(board, player) {
+    const winner = (board, playerSymbol) => (
+        (board[0] === playerSymbol && board[1] === playerSymbol && board[2] === playerSymbol) ||
+        (board[3] === playerSymbol && board[4] === playerSymbol && board[5] === playerSymbol) ||
+        (board[6] === playerSymbol && board[7] === playerSymbol && board[8] === playerSymbol) ||
+        (board[0] === playerSymbol && board[3] === playerSymbol && board[6] === playerSymbol) ||
+        (board[1] === playerSymbol && board[4] === playerSymbol && board[7] === playerSymbol) ||
+        (board[2] === playerSymbol && board[5] === playerSymbol && board[8] === playerSymbol) ||
+        (board[0] === playerSymbol && board[4] === playerSymbol && board[8] === playerSymbol) ||
+        (board[2] === playerSymbol && board[4] === playerSymbol && board[6] === playerSymbol)
+    );
+  
+    const checkForDraw = board => board.filter(s => s === 'O' || s === 'X').length === 9;
+  
+    return winner(board, player.symbol) ? 'win' : checkForDraw(board) ? 'draw' : false;
+  }
+
   // Displays the winning players win message on the finish screen
   handleWin(currentPlayer) {
     const { screenWinClass, winMessage } = currentPlayer;
@@ -240,7 +258,7 @@ class GamePlay {
     this.boardSpaces[selectedBoxIndex] = this.player2.symbol;
     const selectedBox = this.$boxes.eq(selectedBoxIndex);
     $(selectedBox).addClass(this.player2.boxClass);
-    const result = checkForWinner(this.boardSpaces, this.player2);
+    const result = this.checkForWinner(this.boardSpaces, this.player2);
     console.log(result);
     if (result === 'win') {
       this.handleWin(this.player2);
@@ -333,46 +351,16 @@ class GameBoard {
                         FUNCTIONS
 ===============-=============-=============-===========*/
 
-function checkForWinner(board, player) {
-  const winner = (board, playerSymbol) => {
-    if (
-      (board[0] == playerSymbol && board[1] == playerSymbol && board[2] == playerSymbol) ||
-      (board[3] == playerSymbol && board[4] == playerSymbol && board[5] == playerSymbol) ||
-      (board[6] == playerSymbol && board[7] == playerSymbol && board[8] == playerSymbol) ||
-      (board[0] == playerSymbol && board[3] == playerSymbol && board[6] == playerSymbol) ||
-      (board[1] == playerSymbol && board[4] == playerSymbol && board[7] == playerSymbol) ||
-      (board[2] == playerSymbol && board[5] == playerSymbol && board[8] == playerSymbol) ||
-      (board[0] == playerSymbol && board[4] == playerSymbol && board[8] == playerSymbol) ||
-      (board[2] == playerSymbol && board[4] == playerSymbol && board[6] == playerSymbol)
-      ) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-
-  const checkForDraw = board => {
-    return board.filter( space => space === 'O' || space === 'X' ).length === 9;
-  }
-
-  if( winner(board, player.symbol) ) {
-    return 'win';
-  } else {
-    return checkForDraw(board) ? 'draw' : false;
-  }
-}
-
 function computerSelectsBox(board) {
   
-  const findUnselectedSpaces = board => board.filter(s => s != 'O' && s != 'X');
-  const unselectedBoxesArray = findUnselectedSpaces(board);
-  // Computer makes a choice from an array of the remaining unselected boxes using a generated random index
-  function pickRandomIndex(array) {
-      const randomIndex = Math.floor(Math.random() * array.length);
-      return array[randomIndex];
+  const findEmptySpaces = board => board.filter(s => s != 'O' && s != 'X');
+
+  function minimax(newBoard, player) {
+    const emptySpaces = findEmptySpaces(board);
+    
   }
 
-  return pickRandomIndex(unselectedBoxesArray);
+  return;
 }
 
 /*=============-=============-=============-=============
