@@ -194,11 +194,10 @@ class GamePlay {
     if(boxIsEmpty && !currentPlayer.isComputer) {
       // If box is empty, current player adds symbol to box ...
       $(selectedBox).addClass(currentPlayer.boxClass);
-      // Function checkForWinner then determines if that move results in a win, draw, or the next player's turn
+      // Function checkForWinningMove then determines if that move results in a win, draw, or the next player's turn
       const selectedBoxIndex = $(selectedBox).index();
       this.boardSpaces[selectedBoxIndex] = currentPlayer.symbol;
-      console.log(this.boardSpaces);
-      const result = this.checkForWinner(this.boardSpaces, currentPlayer);
+      const result = this.checkForWinningMove(this.boardSpaces, currentPlayer);
         if (result === 'win') {
           this.handleWin(currentPlayer);
         } else if(result === 'draw') {
@@ -224,21 +223,8 @@ class GamePlay {
     currentPlayer.domElement.siblings().addClass('active');
   }
 
-  checkForWinner(board, player) {
-    const winner = (board, playerSymbol) => (
-        (board[0] === playerSymbol && board[1] === playerSymbol && board[2] === playerSymbol) ||
-        (board[3] === playerSymbol && board[4] === playerSymbol && board[5] === playerSymbol) ||
-        (board[6] === playerSymbol && board[7] === playerSymbol && board[8] === playerSymbol) ||
-        (board[0] === playerSymbol && board[3] === playerSymbol && board[6] === playerSymbol) ||
-        (board[1] === playerSymbol && board[4] === playerSymbol && board[7] === playerSymbol) ||
-        (board[2] === playerSymbol && board[5] === playerSymbol && board[8] === playerSymbol) ||
-        (board[0] === playerSymbol && board[4] === playerSymbol && board[8] === playerSymbol) ||
-        (board[2] === playerSymbol && board[4] === playerSymbol && board[6] === playerSymbol)
-    );
-  
-    const checkForDraw = board => board.filter(s => s === 'O' || s === 'X').length === 9;
-  
-    return winner(board, player.symbol) ? 'win' : checkForDraw(board) ? 'draw' : false;
+  checkForWinningMove(board, player) {
+      return checkForWinner(board, player.symbol) ? 'win' : checkForDraw(board) ? 'draw' : false;
   }
 
   // Displays the winning players win message on the finish screen
@@ -258,8 +244,7 @@ class GamePlay {
     this.boardSpaces[selectedBoxIndex] = this.player2.symbol;
     const selectedBox = this.$boxes.eq(selectedBoxIndex);
     $(selectedBox).addClass(this.player2.boxClass);
-    const result = this.checkForWinner(this.boardSpaces, this.player2);
-    console.log(result);
+    const result = this.checkForWinningMove(this.boardSpaces, this.player2);
     if (result === 'win') {
       this.handleWin(this.player2);
     } else if(result === 'draw') {
@@ -351,16 +336,93 @@ class GameBoard {
                         FUNCTIONS
 ===============-=============-=============-===========*/
 
+// Winning combinations use the board indices
+function checkForWinner(board, player){
+  return  (board[0] == player && board[1] == player && board[2] == player) ||
+          (board[3] == player && board[4] == player && board[5] == player) ||
+          (board[6] == player && board[7] == player && board[8] == player) ||
+          (board[0] == player && board[3] == player && board[6] == player) ||
+          (board[1] == player && board[4] == player && board[7] == player) ||
+          (board[2] == player && board[5] == player && board[8] == player) ||
+          (board[0] == player && board[4] == player && board[8] == player) ||
+          (board[2] == player && board[4] == player && board[6] == player)
+}
+
+function checkForDraw(board) {
+  return board.filter(s => s === 'O' || s === 'X').length === 9;
+}
+
 function computerSelectsBox(board) {
-  
-  const findEmptySpaces = board => board.filter(s => s != 'O' && s != 'X');
 
-  function minimax(newBoard, player) {
-    const emptySpaces = findEmptySpaces(board);
+  const player1 = "O";
+  const computer = "X";
+
+  function minimax(board, player){
     
-  }
+    // Returns the available spots on the board
+    const emptyIndices = board => board.filter(s => s != "O" && s != "X");
+    
+    const availableSpots = emptyIndices(board);
 
-  return;
+    // Checks for the terminal states such as win, lose, and tie and returns a value accordingly
+    if (checkForWinner(board, player1)){
+      return {score:-10};
+    }
+    else if (checkForWinner(board, computer)){
+      return {score:10};
+    }
+    else if (availableSpots.length === 0){
+      return {score:0};
+    }
+
+    /* Loop through available spots. Create an object for each spot and store 
+    the index of that spot as a number in the object's index key */
+    const moves = availableSpots.map(currentSpot => {
+      const move = {};
+      move.index = board[currentSpot];
+      board[currentSpot] = player;
+    
+      // Collect the score resulting from calling minimax on the opponent of the current player
+      if (player == computer){
+        const result = minimax(board, player1);
+        move.score = result.score;
+      } else {
+        const result = minimax(board, computer);
+        move.score = result.score;
+      }
+
+      // Reset the current spot to empty
+      board[currentSpot] = move.index;
+    
+      return move;
+    });
+
+    // If computer's turn, loop over the moves and choose the move with the highest score
+    let bestMove;
+    if(player === computer){
+      let bestScore = -10000;
+      for(let i = 0; i < moves.length; i++){
+        if(moves[i].score > bestScore){
+          bestScore = moves[i].score;
+          bestMove = i;
+        }
+      }
+    } else {  // else loop over the moves and choose the move with the lowest score
+      let bestScore = 10000;
+      for(let i = 0; i < moves.length; i++){
+        if(moves[i].score < bestScore){
+          bestScore = moves[i].score;
+          bestMove = i;
+        }
+      }
+    }
+
+    return moves[bestMove];
+  } // -- End of minimax function
+
+  // Computer chooses the best available spot
+  const bestSpot = minimax(board, computer);
+  return bestSpot.index;
 }
 
 /*=============-=============-=============-=============
