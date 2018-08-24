@@ -11,3 +11,8 @@ Treehouse Full Stack JavaScript Techdegree - Project 4
     and whether the game is a draw or, if not, who won and lost.
   - Add programming to support playing against the computer
   - Use the module pattern to create game
+
+**Project Completed:** 08/23/2018  
+**Grade:** Exceeds Expectations
+
+**View Project:** https://jordanmor.github.io/tic-tac-toe/
