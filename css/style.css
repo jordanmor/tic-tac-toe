@@ -70,6 +70,9 @@ h1 {
       color: #54D17A; }
     .screen-start h1 + .button {
       margin-top: 5em; }
+  .screen-win {
+    display: none;
+  }
   .screen-win p {
     font-size: 6em;
     font-weight: 700;
@@ -102,6 +105,7 @@ h1 {
       top: 4.5rem; }
 
 .board {
+  display: none;
   padding-top: 1em; }
   .board h1 {
     margin-top: 0.3em; }
@@ -163,6 +167,7 @@ h1 {
 ===============-=============-=============-===========*/
 
 .modal {
+  display: none;
   position: fixed;
   z-index: 1;
   left: 0;
