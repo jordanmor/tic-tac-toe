@@ -1,12 +1,12 @@
 class Board {
   constructor(players) {
-    this.boxes = this.createBoxes();
+    this.boxes = this.createBoxes(9);
     this.players = players;
   }
 
-  createBoxes() {
+  createBoxes(num) {
     const boxes = [];
-    for (let i = 0; i < 9; i++) {
+    for (let i = 0; i < num; i++) {
       boxes.push(new Box(i));
     }
     return boxes;

@@ -29,8 +29,9 @@ $('.button').on('click', function(e) {
   }
 });
 
+// Box interactions
 $boxes.on('click', function(e) {
-  game.selectBox(e);
+  game.selectBox(e.target);
 });
 
 $boxes.on('mouseover', 'li', function(e) {

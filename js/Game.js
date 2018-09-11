@@ -101,8 +101,8 @@ class Game {
     $('#player2Input').val('');
   }
   
-  selectBox(e) {
-    const selectedBox = this.board.findSelectedBox(e.target);
+  selectBox(target) {
+    const selectedBox = this.board.findSelectedBox(target);
 
     if(selectedBox.isEmpty && !this.activePlayer.isComputer) {
       this.updateGameState(this.activePlayer, selectedBox);
